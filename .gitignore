@@ -1,0 +1,63 @@
+# =========================
+# PYTHON
+# =========================
+venv/
+.venv/
+backend/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# =========================
+# NODE / REACT / NEXT
+# =========================
+node_modules/
+frontend/node_modules/
+.next/
+out/
+dist/
+
+# =========================
+# ENVIRONMENT FILES
+# =========================
+.env
+.env.local
+.env*.local
+
+# =========================
+# DATABASE
+# =========================
+*.db
+*.sqlite3
+
+# =========================
+# OS FILES
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# VERCEL
+# =========================
+.vercel/
+
+# =========================
+# V0 INTERNAL FILES
+# =========================
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.snowflake/
+.v0-trash/
+
+# =========================
+# LOG FILES
+# =========================
+*.log
+
+# =========================
+# CACHE
+# =========================
+.cache/
+coverage/
