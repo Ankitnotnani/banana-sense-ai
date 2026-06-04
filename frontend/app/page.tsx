@@ -1,12 +1,69 @@
-import { Navbar } from '@/components/navbar'
-import { HeroSection } from '@/components/hero-section'
-import { UploadDetectionSection } from '@/components/upload-detection-section'
-import { TechnologySection } from '@/components/technology-section'
-import { ApplicationsSection } from '@/components/applications-section'
-import { Footer } from '@/components/footer'
-import { HistorySection } from '@/components/history-section'
-import { WebcamSection } from '@/components/webcam-section'
-import { AnalyticsDashboard } from '@/components/analytics-dashboard-client'
+'use client'
+
+import dynamic from 'next/dynamic'
+
+const Navbar = dynamic(
+  () => import('@/components/navbar').then((mod) => mod.Navbar),
+  { ssr: false }
+)
+
+const HeroSection = dynamic(
+  () => import('@/components/hero-section').then((mod) => mod.HeroSection),
+  { ssr: false }
+)
+
+const UploadDetectionSection = dynamic(
+  () =>
+    import('@/components/upload-detection-section').then(
+      (mod) => mod.UploadDetectionSection
+    ),
+  { ssr: false }
+)
+
+const TechnologySection = dynamic(
+  () =>
+    import('@/components/technology-section').then(
+      (mod) => mod.TechnologySection
+    ),
+  { ssr: false }
+)
+
+const ApplicationsSection = dynamic(
+  () =>
+    import('@/components/applications-section').then(
+      (mod) => mod.ApplicationsSection
+    ),
+  { ssr: false }
+)
+
+const HistorySection = dynamic(
+  () =>
+    import('@/components/history-section').then(
+      (mod) => mod.HistorySection
+    ),
+  { ssr: false }
+)
+
+const WebcamSection = dynamic(
+  () =>
+    import('@/components/webcam-section').then(
+      (mod) => mod.WebcamSection
+    ),
+  { ssr: false }
+)
+
+const AnalyticsDashboard = dynamic(
+  () =>
+    import('@/components/analytics-dashboard').then(
+      (mod) => mod.AnalyticsDashboard
+    ),
+  { ssr: false }
+)
+
+const Footer = dynamic(
+  () => import('@/components/footer').then((mod) => mod.Footer),
+  { ssr: false }
+)
 
 export default function Home() {
 
@@ -24,13 +81,10 @@ export default function Home() {
 
       <ApplicationsSection />
 
-      {/* Detection History */}
-      <HistorySection />
-
-      {/* Analytics Dashboard */}
       <AnalyticsDashboard />
 
-      {/* Live Webcam Detection */}
+      <HistorySection />
+
       <WebcamSection />
 
       <Footer />
