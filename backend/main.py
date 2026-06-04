@@ -17,29 +17,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load trained model
+# Load model
 model = tf.keras.models.load_model("banana_model.h5")
 
-# Class labels
+# Classes
 classes = [
     "Unripe",
     "Ripe",
     "Overripe"
 ]
 
-# Store prediction history
+# Store history
 prediction_history = []
 
+# Home route
 @app.get("/")
 def home():
     return {
         "message": "Banana Ripeness API is Running Successfully"
     }
 
-@app.get("/history")
-def get_history():
-    return prediction_history
-
+# Prediction route
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
@@ -69,6 +67,35 @@ async def predict(file: UploadFile = File(...)):
         return {
             "error": str(e)
         }
+
+# History route
+@app.get("/history")
+def get_history():
+    return prediction_history
+
+# Analytics route
+@app.get("/analytics")
+def analytics():
+    total_predictions = len(prediction_history)
+
+    ripe_count = len(
+        [p for p in prediction_history if p["prediction"] == "Ripe"]
+    )
+
+    unripe_count = len(
+        [p for p in prediction_history if p["prediction"] == "Unripe"]
+    )
+
+    overripe_count = len(
+        [p for p in prediction_history if p["prediction"] == "Overripe"]
+    )
+
+    return {
+        "total_predictions": total_predictions,
+        "ripe": ripe_count,
+        "unripe": unripe_count,
+        "overripe": overripe_count
+    }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
