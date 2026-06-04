@@ -28,7 +28,7 @@ export function HeroSection() {
 
   useEffect(() => {
 
-    fetch('http://127.0.0.1:8000/analytics')
+    fetch('https://banana-backend-eqj6.onrender.com/analytics')
 
       .then((res) => res.json())
 

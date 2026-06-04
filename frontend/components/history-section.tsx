@@ -17,7 +17,7 @@ export function HistorySection() {
 
   useEffect(() => {
 
-    fetch('http://127.0.0.1:8000/history')
+    fetch('https://banana-backend-eqj6.onrender.com/history')
 
       .then((res) => res.json())
 
@@ -94,7 +94,7 @@ export function HistorySection() {
           <div className="mt-6">
 
             <a
-              href="http://127.0.0.1:8000/export-csv"
+              href="https://banana-backend-eqj6.onrender.com/export-csv"
               target="_blank"
             >
 

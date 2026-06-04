@@ -56,7 +56,7 @@ export function WebcamSection() {
 
       // Send to backend
       const response = await fetch(
-        'http://127.0.0.1:8000/predict',
+        'https://banana-backend-eqj6.onrender.com/predict',
         {
           method: 'POST',
           body: formData,

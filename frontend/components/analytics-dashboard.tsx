@@ -41,7 +41,7 @@ export function AnalyticsDashboard() {
 
   useEffect(() => {
 
-    fetch('http://127.0.0.1:8000/history')
+    fetch('https://banana-backend-eqj6.onrender.com/history')
 
       .then((res) => res.json())
 

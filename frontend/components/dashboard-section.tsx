@@ -29,7 +29,7 @@ export function DashboardSection() {
     try {
 
       const response = await fetch(
-        'http://127.0.0.1:8000/analytics'
+        'https://banana-backend-eqj6.onrender.com/analytics'
       )
 
       const data = await response.json()
