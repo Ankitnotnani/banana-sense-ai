@@ -1,94 +1,104 @@
 'use client'
 
-import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
 
-const Navbar = dynamic(
-  () => import('@/components/navbar').then((mod) => mod.Navbar),
-  { ssr: false }
-)
+type HistoryItem = {
+  filename?: string
+  prediction?: string
+  confidence?: number
+}
 
-const HeroSection = dynamic(
-  () => import('@/components/hero-section').then((mod) => mod.HeroSection),
-  { ssr: false }
-)
+export default function Home()
+{
+  const [history, setHistory] = useState<HistoryItem[]>([])
+  const [loading, setLoading] = useState(true)
 
-const UploadDetectionSection = dynamic(
-  () =>
-    import('@/components/upload-detection-section').then(
-      (mod) => mod.UploadDetectionSection
-    ),
-  { ssr: false }
-)
+  const fetchHistory = async () =>
+  {
+    try
+    {
+      const response = await fetch(
+        'https://banana-backend-eqj6.onrender.com/history'
+      )
 
-const TechnologySection = dynamic(
-  () =>
-    import('@/components/technology-section').then(
-      (mod) => mod.TechnologySection
-    ),
-  { ssr: false }
-)
+      if (!response.ok)
+      {
+        console.error('Failed to fetch history')
+        setHistory([])
+        return
+      }
 
-const ApplicationsSection = dynamic(
-  () =>
-    import('@/components/applications-section').then(
-      (mod) => mod.ApplicationsSection
-    ),
-  { ssr: false }
-)
+      const data = await response.json()
 
-const HistorySection = dynamic(
-  () =>
-    import('@/components/history-section').then(
-      (mod) => mod.HistorySection
-    ),
-  { ssr: false }
-)
+      if (Array.isArray(data))
+      {
+        setHistory(data)
+      }
+      else
+      {
+        setHistory([])
+      }
+    }
+    catch (error)
+    {
+      console.error(error)
+      setHistory([])
+    }
+    finally
+    {
+      setLoading(false)
+    }
+  }
 
-const WebcamSection = dynamic(
-  () =>
-    import('@/components/webcam-section').then(
-      (mod) => mod.WebcamSection
-    ),
-  { ssr: false }
-)
-
-const AnalyticsDashboard = dynamic(
-  () =>
-    import('@/components/analytics-dashboard').then(
-      (mod) => mod.AnalyticsDashboard
-    ),
-  { ssr: false }
-)
-
-const Footer = dynamic(
-  () => import('@/components/footer').then((mod) => mod.Footer),
-  { ssr: false }
-)
-
-export default function Home() {
+  useEffect(() =>
+  {
+    fetchHistory()
+  }, [])
 
   return (
+    <main className="min-h-screen bg-black text-white p-10">
+      <h1 className="text-4xl font-bold mb-8">
+        BananaSense AI
+      </h1>
 
-    <main className="min-h-screen bg-banana-dark">
+      <div className="mb-10">
+        <h2 className="text-2xl font-semibold mb-4">
+          Prediction History
+        </h2>
 
-      <Navbar />
+        {loading ? (
+          <p>Loading...</p>
+        ) : history.length === 0 ? (
+          <p>No history available</p>
+        ) : (
+          <div className="space-y-4">
+            {Array.isArray(history) &&
+              history.map((item, index) => (
+                <div
+                  key={index}
+                  className="border border-gray-700 rounded-xl p-4"
+                >
+                  <p>
+                    <strong>File:</strong>{' '}
+                    {item.filename || 'Unknown'}
+                  </p>
 
-      <HeroSection />
+                  <p>
+                    <strong>Prediction:</strong>{' '}
+                    {item.prediction || 'Unknown'}
+                  </p>
 
-      <UploadDetectionSection />
-
-      <TechnologySection />
-
-      <ApplicationsSection />
-
-      <AnalyticsDashboard />
-
-      <HistorySection />
-
-      <WebcamSection />
-
-      <Footer />
-
+                  <p>
+                    <strong>Confidence:</strong>{' '}
+                    {item.confidence
+                      ? `${item.confidence}%`
+                      : 'N/A'}
+                  </p>
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
     </main>
   )
 }
