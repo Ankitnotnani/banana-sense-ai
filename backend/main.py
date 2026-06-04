@@ -4,6 +4,7 @@ from PIL import Image
 import tensorflow as tf
 import numpy as np
 import io
+import traceback
 
 app = FastAPI()
 
@@ -23,11 +24,26 @@ allow_headers=["*"],
 
 # =========================
 
-# LOAD MODEL
+# LOAD MODEL SAFELY
 
 # =========================
 
+try:
 model = tf.keras.models.load_model("banana_model.h5")
+
+```
+print("MODEL LOADED SUCCESSFULLY")
+```
+
+except Exception as e:
+
+```
+print("MODEL LOADING FAILED")
+print(str(e))
+traceback.print_exc()
+
+model = None
+```
 
 CLASS_NAMES = {
 0: "Overripe",
@@ -57,6 +73,11 @@ return {
 async def predict(file: UploadFile = File(...)):
 
 ```
+if model is None:
+    return {
+        "error": "Model failed to load"
+    }
+
 contents = await file.read()
 
 image = Image.open(io.BytesIO(contents)).convert("RGB")
