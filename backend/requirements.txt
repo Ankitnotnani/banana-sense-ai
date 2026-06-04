@@ -6,3 +6,6 @@ pillow
 python-multipart
 sqlalchemy
 pandas
+pydantic
+h5py
+opencv-python-headless
