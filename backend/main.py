@@ -29,9 +29,10 @@ allow_headers=["*"],
 # =========================
 
 try:
-model = tf.keras.models.load_model("banana_model.h5")
 
 ```
+model = tf.keras.models.load_model("banana_model.h5")
+
 print("MODEL LOADED SUCCESSFULLY")
 ```
 
@@ -39,7 +40,9 @@ except Exception as e:
 
 ```
 print("MODEL LOADING FAILED")
+
 print(str(e))
+
 traceback.print_exc()
 
 model = None
@@ -59,9 +62,12 @@ CLASS_NAMES = {
 
 @app.get("/")
 def home():
+
+```
 return {
-"message": "Banana AI Backend Running Successfully"
+    "message": "Banana AI Backend Running Successfully"
 }
+```
 
 # =========================
 
@@ -74,6 +80,7 @@ async def predict(file: UploadFile = File(...)):
 
 ```
 if model is None:
+
     return {
         "error": "Model failed to load"
     }
