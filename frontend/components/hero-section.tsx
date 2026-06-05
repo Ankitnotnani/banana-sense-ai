@@ -8,31 +8,32 @@ import { GradientText } from './gradient-text'
 
 import { SectionReveal } from './section-reveal'
 
-interface AnalyticsData {
-
-  total_scans: number
+interface AnalyticsData
+{
+  total_predictions: number
 
   ripe: number
 
   unripe: number
 
   overripe: number
-
-  average_confidence: number
 }
 
-export function HeroSection() {
-
+export function HeroSection()
+{
   const [analytics, setAnalytics] =
     useState<AnalyticsData | null>(null)
 
-  useEffect(() => {
-
-    fetch('https://banana-backend-eqj6.onrender.com/analytics')
-
+  useEffect(() =>
+  {
+    fetch(
+      'https://banana-backend-eqj6.onrender.com/analytics'
+    )
       .then((res) => res.json())
 
-      .then((data) => setAnalytics(data))
+      .then((data) =>
+        setAnalytics(data)
+      )
 
       .catch((err) =>
         console.error(
@@ -40,27 +41,17 @@ export function HeroSection() {
           err
         )
       )
-
   }, [])
 
   return (
-
     <SectionReveal>
 
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-20">
 
-        {/* Background Effects */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-neon-green/5 rounded-full blur-3xl opacity-50 animate-float" />
+        {/* Background */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-400/5 rounded-full blur-3xl opacity-40" />
 
-        <div
-          className="absolute bottom-20 right-10 w-80 h-80 bg-banana-yellow/5 rounded-full blur-3xl opacity-40 animate-float"
-          style={{ animationDelay: '2s' }}
-        />
-
-        <div
-          className="absolute top-1/2 right-1/4 w-64 h-64 bg-emerald-accent/5 rounded-full blur-3xl opacity-30 animate-float"
-          style={{ animationDelay: '4s' }}
-        />
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-green-400/5 rounded-full blur-3xl opacity-30" />
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center">
 
@@ -77,12 +68,12 @@ export function HeroSection() {
             transition={{
               duration: 0.6,
             }}
-            className="inline-block mb-6 px-5 py-2 bg-white/5 border border-neon-green/30 rounded-full backdrop-blur-xl"
+            className="inline-block mb-6 px-5 py-2 bg-zinc-900 border border-zinc-800 rounded-full"
           >
 
-            <span className="text-neon-green text-sm font-semibold tracking-wide">
+            <span className="text-yellow-400 text-sm font-semibold tracking-wide">
 
-              Enterprise AI Detection
+              Enterprise AI Detection Platform
 
             </span>
 
@@ -101,15 +92,14 @@ export function HeroSection() {
             transition={{
               duration: 0.8,
             }}
-            className="text-4xl sm:text-5xl md:text-7xl font-display font-bold mb-6 leading-tight text-balance"
+            className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight text-balance"
           >
 
-            Banana Ripeness{' '}
+            Intelligent Banana
+            <br />
 
             <GradientText>
-
-              Detection Perfected
-
+              Ripeness Detection
             </GradientText>
 
           </motion.h1>
@@ -128,14 +118,12 @@ export function HeroSection() {
               delay: 0.2,
               duration: 0.8,
             }}
-            className="text-base sm:text-lg md:text-xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-zinc-400 mb-12 max-w-3xl mx-auto leading-relaxed"
           >
 
-            Enterprise-grade AI analysis with
-            real-time ripeness classification,
-            intelligent batch processing,
-            and advanced analytics for
-            farms, warehouses, and supply chains.
+            AI-powered banana ripeness analysis using
+            TensorFlow, Computer Vision, FastAPI and
+            Next.js for real-time agricultural quality assessment.
 
           </motion.p>
 
@@ -156,15 +144,15 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
           >
 
-            <button className="px-8 py-4 rounded-xl bg-gradient-to-r from-neon-green to-emerald-accent text-banana-dark font-semibold hover:scale-105 hover:shadow-[0_0_35px_rgba(57,255,20,0.45)] transition-all duration-300">
+            <button className="px-8 py-4 rounded-xl bg-yellow-400 text-black font-semibold hover:bg-yellow-300 transition-all duration-300">
 
-              Try Detection Now
+              Start Detection
 
             </button>
 
-            <button className="px-8 py-4 rounded-xl border border-neon-green/40 text-neon-green font-semibold hover:bg-neon-green/10 hover:border-neon-green transition-all duration-300">
+            <button className="px-8 py-4 rounded-xl border border-zinc-700 text-white hover:bg-zinc-900 transition-all duration-300">
 
-              View Documentation
+              View Analytics
 
             </button>
 
@@ -184,40 +172,21 @@ export function HeroSection() {
               delay: 0.6,
               duration: 0.8,
             }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-8 border-t border-white/10"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-8 border-t border-zinc-800"
           >
 
-            {/* Accuracy */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl hover:border-neon-green/30 transition-all duration-300">
-
-              <div className="text-3xl md:text-4xl font-display font-bold text-neon-green mb-2">
-
-                {analytics
-                  ? `${analytics.average_confidence}%`
-                  : '...'}
-
-              </div>
-
-              <div className="text-slate-400 text-sm">
-
-                Average Confidence
-
-              </div>
-
-            </div>
-
             {/* Total */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl hover:border-neon-green/30 transition-all duration-300">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-yellow-400/20 transition-all duration-300">
 
-              <div className="text-3xl md:text-4xl font-display font-bold text-neon-green mb-2">
+              <div className="text-4xl font-bold text-yellow-400 mb-2">
 
                 {analytics
-                  ? analytics.total_scans
+                  ? analytics.total_predictions
                   : '...'}
 
               </div>
 
-              <div className="text-slate-400 text-sm">
+              <div className="text-zinc-500 text-sm">
 
                 Total Scans
 
@@ -226,9 +195,9 @@ export function HeroSection() {
             </div>
 
             {/* Ripe */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl hover:border-neon-green/30 transition-all duration-300">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-green-400/20 transition-all duration-300">
 
-              <div className="text-3xl md:text-4xl font-display font-bold text-neon-green mb-2">
+              <div className="text-4xl font-bold text-green-400 mb-2">
 
                 {analytics
                   ? analytics.ripe
@@ -236,7 +205,7 @@ export function HeroSection() {
 
               </div>
 
-              <div className="text-slate-400 text-sm">
+              <div className="text-zinc-500 text-sm">
 
                 Ripe Bananas
 
@@ -244,10 +213,27 @@ export function HeroSection() {
 
             </div>
 
+            {/* Overripe */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-orange-400/20 transition-all duration-300">
+
+              <div className="text-4xl font-bold text-orange-400 mb-2">
+
+                {analytics
+                  ? analytics.overripe
+                  : '...'}
+
+              </div>
+
+              <div className="text-zinc-500 text-sm">
+
+                Overripe Bananas
+
+              </div>
+
+            </div>
+
           </motion.div>
-
         </div>
-
       </section>
 
     </SectionReveal>
