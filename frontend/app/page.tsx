@@ -36,7 +36,6 @@ export default function Home()
     if (!image)
     {
       alert('Please upload an image')
-
       return
     }
 
@@ -74,7 +73,7 @@ export default function Home()
     }
   }
 
-  const predictionColor = () =>
+  const getPredictionColor = () =>
   {
     if (prediction === 'Ripe')
     {
@@ -94,30 +93,54 @@ export default function Home()
     return 'text-white'
   }
 
+  const getPredictionEmoji = () =>
+  {
+    if (prediction === 'Ripe')
+    {
+      return '🍌'
+    }
+
+    if (prediction === 'Unripe')
+    {
+      return '🟢'
+    }
+
+    if (prediction === 'Overripe')
+    {
+      return '🟤'
+    }
+
+    return '🤖'
+  }
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex flex-col items-center justify-center px-6 py-12">
+    <main className="min-h-screen bg-black text-white overflow-hidden">
 
-      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,rgba(255,255,0,0.15),transparent_40%)]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-green-500/10" />
 
-      <div className="relative z-10 w-full max-w-4xl">
+      <div className="relative z-10 flex flex-col items-center justify-center px-6 py-16">
 
-        <div className="text-center mb-12">
+        <div className="text-center mb-14">
 
-          <h1 className="text-6xl md:text-7xl font-black tracking-tight text-yellow-400">
+          <h1 className="text-7xl md:text-8xl font-black bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-200 bg-clip-text text-transparent">
             BananaSense AI
           </h1>
 
-          <p className="mt-4 text-zinc-400 text-lg">
-            Smart AI-powered banana ripeness detection
+          <p className="mt-6 text-zinc-400 text-xl max-w-2xl">
+            AI powered banana ripeness prediction using deep learning
           </p>
 
         </div>
 
-        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl p-8 md:p-12">
+        <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-          <div className="flex flex-col items-center">
+          <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
 
-            <label className="w-full max-w-xl border-2 border-dashed border-zinc-600 hover:border-yellow-400 transition-all rounded-2xl p-10 cursor-pointer text-center bg-black/30">
+            <h2 className="text-3xl font-bold mb-8">
+              Upload Image
+            </h2>
+
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-600 hover:border-yellow-400 transition-all rounded-3xl p-10 cursor-pointer min-h-[320px]">
 
               <input
                 type="file"
@@ -126,81 +149,146 @@ export default function Home()
                 className="hidden"
               />
 
-              <div>
-
-                <p className="text-2xl font-bold mb-2">
-                  Upload Banana Image
-                </p>
-
-                <p className="text-zinc-400">
-                  JPG, PNG supported
-                </p>
-
-              </div>
-
-            </label>
-
-            {preview && (
-              <div className="mt-10">
-
+              {preview ? (
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-80 h-80 object-cover rounded-3xl border border-zinc-700 shadow-2xl"
+                  className="w-full max-h-[300px] object-cover rounded-2xl"
                 />
+              ) : (
+                <div className="text-center">
 
-              </div>
-            )}
+                  <div className="text-7xl mb-4">
+                    🍌
+                  </div>
+
+                  <p className="text-2xl font-bold">
+                    Drag & Drop Banana Image
+                  </p>
+
+                  <p className="text-zinc-400 mt-3">
+                    JPG, PNG supported
+                  </p>
+
+                </div>
+              )}
+
+            </label>
 
             <button
               onClick={handleUpload}
               disabled={loading}
-              className="mt-10 bg-yellow-400 hover:bg-yellow-300 text-black font-black px-10 py-4 rounded-2xl text-lg transition-all hover:scale-105 active:scale-95 shadow-xl"
+              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-4 rounded-2xl text-xl transition-all hover:scale-[1.02] active:scale-95 shadow-2xl"
             >
               {loading
                 ? 'Analyzing Banana...'
-                : 'Predict Banana Ripeness'}
+                : 'Predict Ripeness'}
             </button>
 
-            {prediction && (
-              <div className="mt-12 w-full max-w-2xl bg-black/40 border border-zinc-700 rounded-3xl p-8 shadow-xl">
+          </div>
 
-                <h2 className="text-4xl font-black mb-6 text-center text-white">
-                  Prediction Result
-                </h2>
+          <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col justify-between">
 
-                <div className="space-y-5">
+            <div>
 
-                  <div className="flex items-center justify-between border-b border-zinc-700 pb-4">
+              <h2 className="text-3xl font-bold mb-10">
+                Prediction Result
+              </h2>
 
-                    <span className="text-zinc-400 text-xl">
-                      Prediction
-                    </span>
+              {prediction ? (
+                <div>
 
-                    <span
-                      className={`text-3xl font-black ${predictionColor()}`}
-                    >
-                      {prediction}
-                    </span>
-
+                  <div className="text-8xl mb-6">
+                    {getPredictionEmoji()}
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <h3
+                    className={`text-5xl font-black mb-6 ${getPredictionColor()}`}
+                  >
+                    {prediction}
+                  </h3>
 
-                    <span className="text-zinc-400 text-xl">
-                      Confidence
-                    </span>
+                  <div className="space-y-6">
 
-                    <span className="text-3xl font-black text-cyan-400">
-                      {confidence}%
-                    </span>
+                    <div>
+
+                      <div className="flex justify-between mb-2">
+
+                        <span className="text-zinc-400">
+                          Confidence
+                        </span>
+
+                        <span className="font-bold">
+                          {confidence}%
+                        </span>
+
+                      </div>
+
+                      <div className="w-full bg-zinc-800 rounded-full h-4 overflow-hidden">
+
+                        <div
+                          className="bg-gradient-to-r from-yellow-400 to-green-400 h-4 rounded-full"
+                          style={{
+                            width: `${confidence}%`,
+                          }}
+                        />
+
+                      </div>
+
+                    </div>
 
                   </div>
 
                 </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center">
 
+                  <div className="text-8xl mb-6 opacity-40">
+                    🤖
+                  </div>
+
+                  <p className="text-2xl text-zinc-400">
+                    Upload an image to begin prediction
+                  </p>
+
+                </div>
+              )}
+
+            </div>
+
+            <div className="mt-10 grid grid-cols-3 gap-4">
+
+              <div className="bg-black/40 rounded-2xl p-5 text-center border border-zinc-800">
+                <div className="text-3xl mb-2">
+                  🟢
+                </div>
+
+                <p className="font-bold">
+                  Unripe
+                </p>
               </div>
-            )}
+
+              <div className="bg-black/40 rounded-2xl p-5 text-center border border-zinc-800">
+                <div className="text-3xl mb-2">
+                  🍌
+                </div>
+
+                <p className="font-bold">
+                  Ripe
+                </p>
+              </div>
+
+              <div className="bg-black/40 rounded-2xl p-5 text-center border border-zinc-800">
+                <div className="text-3xl mb-2">
+                  🟤
+                </div>
+
+                <p className="font-bold">
+                  Overripe
+                </p>
+              </div>
+
+            </div>
 
           </div>
 
