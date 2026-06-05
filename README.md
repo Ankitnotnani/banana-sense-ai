@@ -156,25 +156,25 @@ Analytics Dashboard
 
 ## Dashboard
 
-<img src="./frontend/public/screenshots/dashboard.png" width="100%" />
+<img src="frontend/public/screenshots/dashboard.png" />
 
 ---
 
 ## Prediction Results
 
-<img src="./frontend/public/screenshots/prediction.png" width="100%" />
+<img src="frontend/public/screenshots/prediction.png" />
 
 ---
 
 ## Analytics Dashboard
 
-<img src="./frontend/public/screenshots/analytics.png" width="100%" />
+<img src="frontend/public/screenshots/analytics.png" />
 
 ---
 
 ## Detection History
 
-<img src="./frontend/public/screenshots/history.png" width="100%" />
+<img src="frontend/public/screenshots/history.png" />
 
 ---
 
