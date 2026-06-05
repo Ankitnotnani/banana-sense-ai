@@ -8,12 +8,27 @@ export default function Home()
   const [prediction, setPrediction] = useState('')
   const [confidence, setConfidence] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
+  const [preview, setPreview] = useState('')
+
+  const handleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) =>
+  {
+    if (e.target.files && e.target.files[0])
+    {
+      const file = e.target.files[0]
+
+      setImage(file)
+
+      setPreview(URL.createObjectURL(file))
+    }
+  }
 
   const handleUpload = async () =>
   {
     if (!image)
     {
-      alert('Please select an image')
+      alert('Please select an image first')
       return
     }
 
@@ -22,6 +37,7 @@ export default function Home()
     try
     {
       const formData = new FormData()
+
       formData.append('file', image)
 
       const response = await fetch(
@@ -40,6 +56,7 @@ export default function Home()
     catch (error)
     {
       console.error(error)
+
       alert('Prediction failed')
     }
     finally
@@ -49,49 +66,63 @@ export default function Home()
   }
 
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-10">
-      <h1 className="text-5xl font-bold mb-10">
+    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
+
+      <h1 className="text-5xl font-bold mb-10 text-yellow-400">
         BananaSense AI
       </h1>
 
-      <div className="w-full max-w-xl border border-gray-700 rounded-2xl p-8">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) =>
-          {
-            if (e.target.files)
-            {
-              setImage(e.target.files[0])
-            }
-          }}
-          className="mb-6"
-        />
+      <div className="w-full max-w-2xl border border-gray-700 rounded-2xl p-8 bg-zinc-900">
 
-        <button
-          onClick={handleUpload}
-          disabled={loading}
-          className="bg-yellow-500 text-black px-6 py-3 rounded-xl font-bold"
-        >
-          {loading ? 'Predicting...' : 'Predict Banana Ripeness'}
-        </button>
+        <div className="flex flex-col items-center">
 
-        {prediction && (
-          <div className="mt-8 border border-gray-600 rounded-xl p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              Prediction Result
-            </h2>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="mb-6"
+          />
 
-            <p className="text-xl">
-              <strong>Prediction:</strong> {prediction}
-            </p>
+          {preview && (
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-72 rounded-xl mb-6 border border-gray-700"
+            />
+          )}
 
-            <p className="text-xl mt-2">
-              <strong>Confidence:</strong> {confidence}%
-            </p>
-          </div>
-        )}
+          <button
+            onClick={handleUpload}
+            disabled={loading}
+            className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-3 rounded-xl transition-all"
+          >
+            {loading
+              ? 'Predicting...'
+              : 'Predict Banana Ripeness'}
+          </button>
+
+          {prediction && (
+            <div className="mt-10 w-full border border-gray-700 rounded-xl p-6 bg-black">
+
+              <h2 className="text-3xl font-bold mb-4 text-green-400">
+                Prediction Result
+              </h2>
+
+              <p className="text-xl mb-2">
+                <strong>Prediction:</strong> {prediction}
+              </p>
+
+              <p className="text-xl">
+                <strong>Confidence:</strong> {confidence}%
+              </p>
+
+            </div>
+          )}
+
+        </div>
+
       </div>
+
     </main>
   )
 }
