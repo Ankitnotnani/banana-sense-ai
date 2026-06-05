@@ -38,9 +38,9 @@ model = tf.keras.models.load_model(
 # =========================
 
 classes = [
-    "Unripe",
+    "Overripe",
     "Ripe",
-    "Overripe"
+    "Unripe"
 ]
 
 # =========================
