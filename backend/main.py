@@ -17,24 +17,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load model
+# Load trained model
 model = tf.keras.models.load_model("banana_model.h5")
 
-# Classes
+# IMPORTANT:
+# This order MUST match training dataset folders
 classes = [
-    "Unripe",
+    "Overripe",
     "Ripe",
-    "Overripe"
+    "Unripe"
 ]
 
-# Store history
+# Store prediction history
 prediction_history = []
 
 # Home route
 @app.get("/")
 def home():
     return {
-        "message": "Banana Ripeness API is Running Successfully"
+        "message": "Banana Ripeness API Running"
     }
 
 # Prediction route
@@ -43,20 +44,42 @@ async def predict(file: UploadFile = File(...)):
     try:
         contents = await file.read()
 
-        image = Image.open(io.BytesIO(contents)).convert("RGB")
+        image = Image.open(
+            io.BytesIO(contents)
+        ).convert("RGB")
+
         image = image.resize((224, 224))
 
-        img_array = np.array(image) / 255.0
-        img_array = np.expand_dims(img_array, axis=0)
+        img_array = np.array(image).astype("float32")
 
+        # Normalize image
+        img_array = img_array / 255.0
+
+        # Add batch dimension
+        img_array = np.expand_dims(
+            img_array,
+            axis=0
+        )
+
+        # Predict
         prediction = model.predict(img_array)
 
-        predicted_class = classes[np.argmax(prediction)]
-        confidence = float(np.max(prediction))
+        predicted_index = np.argmax(
+            prediction,
+            axis=1
+        )[0]
+
+        confidence = float(
+            np.max(prediction) * 100
+        )
+
+        predicted_class = classes[
+            predicted_index
+        ]
 
         result = {
             "prediction": predicted_class,
-            "confidence": round(confidence * 100, 2)
+            "confidence": round(confidence, 2)
         }
 
         prediction_history.append(result)
@@ -68,7 +91,7 @@ async def predict(file: UploadFile = File(...)):
             "error": str(e)
         }
 
-# History route
+# Prediction history route
 @app.get("/history")
 def get_history():
     return prediction_history
@@ -76,19 +99,25 @@ def get_history():
 # Analytics route
 @app.get("/analytics")
 def analytics():
-    total_predictions = len(prediction_history)
 
-    ripe_count = len(
-        [p for p in prediction_history if p["prediction"] == "Ripe"]
+    total_predictions = len(
+        prediction_history
     )
 
-    unripe_count = len(
-        [p for p in prediction_history if p["prediction"] == "Unripe"]
-    )
+    ripe_count = len([
+        p for p in prediction_history
+        if p["prediction"] == "Ripe"
+    ])
 
-    overripe_count = len(
-        [p for p in prediction_history if p["prediction"] == "Overripe"]
-    )
+    unripe_count = len([
+        p for p in prediction_history
+        if p["prediction"] == "Unripe"
+    ])
+
+    overripe_count = len([
+        p for p in prediction_history
+        if p["prediction"] == "Overripe"
+    ])
 
     return {
         "total_predictions": total_predictions,
@@ -98,4 +127,8 @@ def analytics():
     }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000
+    )
