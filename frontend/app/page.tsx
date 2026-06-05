@@ -3,6 +3,13 @@
 import { useRef, useState } from 'react'
 import Webcam from 'react-webcam'
 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+} from 'recharts'
+
 export default function Home()
 {
   const webcamRef = useRef<Webcam>(null)
@@ -91,162 +98,251 @@ export default function Home()
     }
   }
 
-  const getColor = () =>
+  const getInsight = () =>
   {
     if (prediction === 'Unripe')
     {
-      return 'text-green-400'
+      return 'This banana is still raw and ideal for storage or transportation.'
     }
 
     if (prediction === 'Ripe')
     {
-      return 'text-yellow-300'
+      return 'This banana is perfectly ripe and ready for consumption.'
     }
 
     if (prediction === 'Overripe')
     {
-      return 'text-orange-400'
+      return 'This banana is overripe and best suited for smoothies or baking.'
     }
 
-    return 'text-white'
+    return 'Upload a banana image to get AI insights.'
   }
 
+  const chartData = [
+    {
+      name: prediction,
+      value: confidence || 0,
+    },
+    {
+      name: 'Remaining',
+      value: 100 - (confidence || 0),
+    },
+  ]
+
+  const COLORS = ['#22c55e', '#27272a']
+
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
+    <main className="min-h-screen bg-black text-white px-6 py-10">
 
-      <h1 className="text-6xl font-extrabold text-yellow-400 mb-12 text-center">
-        BananaSense AI
-      </h1>
+      <div className="max-w-7xl mx-auto">
 
-      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-10">
+        <h1 className="text-6xl font-extrabold text-yellow-400 text-center mb-14">
+          BananaSense AI
+        </h1>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
+        <div className="grid lg:grid-cols-2 gap-10">
 
-          <div className="flex gap-4 mb-6">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
+
+            <div className="flex gap-4 mb-6">
+
+              <button
+                onClick={() => setUseCamera(false)}
+                className={`px-5 py-3 rounded-xl font-semibold transition ${
+                  !useCamera
+                    ? 'bg-yellow-400 text-black'
+                    : 'bg-zinc-800'
+                }`}
+              >
+                Upload Image
+              </button>
+
+              <button
+                onClick={() => setUseCamera(true)}
+                className={`px-5 py-3 rounded-xl font-semibold transition ${
+                  useCamera
+                    ? 'bg-yellow-400 text-black'
+                    : 'bg-zinc-800'
+                }`}
+              >
+                Live Camera
+              </button>
+            </div>
+
+            {!useCamera ? (
+              <div>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="mb-6"
+                />
+
+                {preview && (
+                  <img
+                    src={preview}
+                    alt="preview"
+                    className="w-full h-80 object-cover rounded-2xl border border-zinc-700"
+                  />
+                )}
+              </div>
+            ) : (
+              <div>
+
+                <Webcam
+                  ref={webcamRef}
+                  screenshotFormat="image/jpeg"
+                  className="rounded-2xl w-full"
+                />
+
+                <button
+                  onClick={captureImage}
+                  className="mt-5 bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-xl font-bold transition"
+                >
+                  Capture Image
+                </button>
+              </div>
+            )}
 
             <button
-              onClick={() => setUseCamera(false)}
-              className={`px-5 py-3 rounded-xl font-semibold transition ${
-                !useCamera
-                  ? 'bg-yellow-400 text-black'
-                  : 'bg-zinc-800'
-              }`}
+              onClick={handlePrediction}
+              disabled={loading}
+              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-black py-4 rounded-2xl text-xl font-bold transition"
             >
-              Upload Image
-            </button>
-
-            <button
-              onClick={() => setUseCamera(true)}
-              className={`px-5 py-3 rounded-xl font-semibold transition ${
-                useCamera
-                  ? 'bg-yellow-400 text-black'
-                  : 'bg-zinc-800'
-              }`}
-            >
-              Live Camera
+              {loading
+                ? 'Analyzing Banana...'
+                : 'Predict Banana Ripeness'}
             </button>
           </div>
 
-          {!useCamera ? (
-            <div>
+          <div className="space-y-8">
 
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="mb-6"
-              />
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
 
-              {preview && (
-                <img
-                  src={preview}
-                  alt="preview"
-                  className="w-full h-72 object-cover rounded-2xl border border-zinc-700"
-                />
+              <h2 className="text-4xl font-bold mb-8 text-green-400">
+                Prediction Result
+              </h2>
+
+              {prediction ? (
+                <div>
+
+                  <p className="text-2xl mb-2">
+                    Prediction
+                  </p>
+
+                  <p className="text-5xl font-extrabold text-yellow-300 mb-8">
+                    {prediction}
+                  </p>
+
+                  <p className="text-2xl mb-3">
+                    Confidence
+                  </p>
+
+                  <div className="w-full bg-zinc-700 rounded-full h-6 overflow-hidden">
+                    <div
+                      className="bg-green-400 h-6 transition-all duration-700"
+                      style={{
+                        width: `${confidence}%`,
+                      }}
+                    />
+                  </div>
+
+                  <p className="mt-4 text-3xl font-bold">
+                    {confidence}%
+                  </p>
+                </div>
+              ) : (
+                <p className="text-zinc-400 text-xl">
+                  Upload or capture a banana image.
+                </p>
               )}
             </div>
-          ) : (
-            <div>
 
-              <Webcam
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                className="rounded-2xl w-full"
-              />
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
 
-              <button
-                onClick={captureImage}
-                className="mt-5 bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-xl font-bold transition"
-              >
-                Capture Image
-              </button>
+              <h2 className="text-3xl font-bold text-cyan-400 mb-6">
+                AI Insights
+              </h2>
+
+              <p className="text-zinc-300 text-lg leading-8">
+                {getInsight()}
+              </p>
             </div>
-          )}
-
-          <button
-            onClick={handlePrediction}
-            disabled={loading}
-            className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-black py-4 rounded-2xl text-xl font-bold transition"
-          >
-            {loading
-              ? 'Analyzing Banana...'
-              : 'Predict Banana Ripeness'}
-          </button>
+          </div>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl flex flex-col justify-center">
+        {prediction && (
+          <div className="mt-14 bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
 
-          <h2 className="text-4xl font-bold mb-8 text-green-400">
-            Prediction Result
-          </h2>
+            <h2 className="text-4xl font-bold text-pink-400 mb-10">
+              Prediction Analytics
+            </h2>
 
-          {prediction ? (
-            <div>
+            <div className="grid lg:grid-cols-2 gap-10 items-center">
 
-              <div className="mb-6">
+              <div className="grid grid-cols-3 gap-6">
 
-                <p className="text-2xl mb-2">
-                  Prediction
-                </p>
+                <div className="bg-zinc-800 rounded-2xl p-6 text-center">
+                  <p className="text-zinc-400 mb-2">
+                    Quality Score
+                  </p>
 
-                <p
-                  className={`text-5xl font-extrabold ${getColor()}`}
-                >
-                  {prediction}
-                </p>
-              </div>
-
-              <div>
-
-                <p className="text-2xl mb-3">
-                  Confidence
-                </p>
-
-                <div className="w-full bg-zinc-700 rounded-full h-6 overflow-hidden">
-                  <div
-                    className="bg-green-400 h-6"
-                    style={{
-                      width: `${confidence}%`,
-                    }}
-                  />
+                  <p className="text-4xl font-bold text-green-400">
+                    {Math.round(confidence || 0)}
+                  </p>
                 </div>
 
-                <p className="mt-3 text-3xl font-bold">
-                  {confidence}%
-                </p>
+                <div className="bg-zinc-800 rounded-2xl p-6 text-center">
+                  <p className="text-zinc-400 mb-2">
+                    Prediction
+                  </p>
+
+                  <p className="text-2xl font-bold text-yellow-300">
+                    {prediction}
+                  </p>
+                </div>
+
+                <div className="bg-zinc-800 rounded-2xl p-6 text-center">
+                  <p className="text-zinc-400 mb-2">
+                    AI Confidence
+                  </p>
+
+                  <p className="text-3xl font-bold text-cyan-400">
+                    {confidence}%
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-72">
+
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+
+                    <Pie
+                      data={chartData}
+                      dataKey="value"
+                      outerRadius={100}
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell
+                          key={index}
+                          fill={COLORS[index]}
+                        />
+                      ))}
+                    </Pie>
+
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </div>
-          ) : (
-            <p className="text-zinc-400 text-xl">
-              Upload or capture a banana image to begin analysis.
-            </p>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
 
-      <div className="mt-14 text-zinc-500 text-center max-w-2xl">
-        AI-powered banana ripeness detection system using Deep Learning,
-        TensorFlow, FastAPI, Next.js and Computer Vision.
+        <div className="mt-16 text-center text-zinc-500 max-w-3xl mx-auto leading-8">
+          AI-powered banana ripeness classification system built using
+          TensorFlow, FastAPI, Next.js, Deep Learning and Computer Vision.
+        </div>
       </div>
     </main>
   )
