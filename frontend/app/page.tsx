@@ -1,19 +1,30 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+
+import Webcam from 'react-webcam'
 
 export default function Home()
 {
-  const [image, setImage] = useState<File | null>(null)
+  const webcamRef = useRef<Webcam>(null)
 
-  const [preview, setPreview] = useState('')
+  const [image, setImage] =
+    useState<File | null>(null)
 
-  const [prediction, setPrediction] = useState('')
+  const [preview, setPreview] =
+    useState('')
+
+  const [prediction, setPrediction] =
+    useState('')
 
   const [confidence, setConfidence] =
     useState<number | null>(null)
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] =
+    useState(false)
+
+  const [cameraMode, setCameraMode] =
+    useState(false)
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -31,11 +42,43 @@ export default function Home()
     }
   }
 
-  const handleUpload = async () =>
+  const captureImage = async () =>
+  {
+    if (!webcamRef.current)
+    {
+      return
+    }
+
+    const screenshot =
+      webcamRef.current.getScreenshot()
+
+    if (!screenshot)
+    {
+      return
+    }
+
+    setPreview(screenshot)
+
+    const blob = await fetch(screenshot)
+      .then((res) => res.blob())
+
+    const file = new File(
+      [blob],
+      'webcam.jpg',
+      {
+        type: 'image/jpeg',
+      }
+    )
+
+    setImage(file)
+  }
+
+  const handlePrediction = async () =>
   {
     if (!image)
     {
-      alert('Please upload an image')
+      alert('Please upload or capture an image')
+
       return
     }
 
@@ -118,67 +161,112 @@ export default function Home()
 
       <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-green-500/10" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center px-6 py-16">
+      <div className="relative z-10 px-6 py-16 max-w-7xl mx-auto">
 
-        <div className="text-center mb-14">
+        <div className="text-center mb-16">
 
-          <h1 className="text-7xl md:text-8xl font-black bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-200 bg-clip-text text-transparent">
+          <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-200 bg-clip-text text-transparent">
             BananaSense AI
           </h1>
 
-          <p className="mt-6 text-zinc-400 text-xl max-w-2xl">
-            AI powered banana ripeness prediction using deep learning
+          <p className="mt-6 text-zinc-400 text-xl max-w-3xl mx-auto">
+            AI powered banana ripeness detection using deep learning and computer vision
           </p>
 
         </div>
 
-        <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
           <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
 
-            <h2 className="text-3xl font-bold mb-8">
-              Upload Image
-            </h2>
+            <div className="flex gap-4 mb-8">
 
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-600 hover:border-yellow-400 transition-all rounded-3xl p-10 cursor-pointer min-h-[320px]">
+              <button
+                onClick={() =>
+                  setCameraMode(false)
+                }
+                className={`flex-1 py-4 rounded-2xl font-bold transition-all ${
+                  !cameraMode
+                    ? 'bg-yellow-400 text-black'
+                    : 'bg-zinc-800 text-white'
+                }`}
+              >
+                Upload Image
+              </button>
 
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
+              <button
+                onClick={() =>
+                  setCameraMode(true)
+                }
+                className={`flex-1 py-4 rounded-2xl font-bold transition-all ${
+                  cameraMode
+                    ? 'bg-yellow-400 text-black'
+                    : 'bg-zinc-800 text-white'
+                }`}
+              >
+                Live Camera
+              </button>
 
-              {preview ? (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full max-h-[300px] object-cover rounded-2xl"
+            </div>
+
+            {!cameraMode ? (
+              <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-600 hover:border-yellow-400 transition-all rounded-3xl p-10 cursor-pointer min-h-[400px]">
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
                 />
-              ) : (
-                <div className="text-center">
 
-                  <div className="text-7xl mb-4">
-                    🍌
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full max-h-[350px] object-cover rounded-3xl"
+                  />
+                ) : (
+                  <div className="text-center">
+
+                    <div className="text-8xl mb-6">
+                      🍌
+                    </div>
+
+                    <p className="text-3xl font-black mb-3">
+                      Upload Banana Image
+                    </p>
+
+                    <p className="text-zinc-400">
+                      JPG, PNG supported
+                    </p>
+
                   </div>
+                )}
 
-                  <p className="text-2xl font-bold">
-                    Drag & Drop Banana Image
-                  </p>
+              </label>
+            ) : (
+              <div className="flex flex-col items-center">
 
-                  <p className="text-zinc-400 mt-3">
-                    JPG, PNG supported
-                  </p>
+                <Webcam
+                  ref={webcamRef}
+                  screenshotFormat="image/jpeg"
+                  className="rounded-3xl w-full"
+                />
 
-                </div>
-              )}
+                <button
+                  onClick={captureImage}
+                  className="mt-6 bg-cyan-400 hover:bg-cyan-300 text-black px-8 py-4 rounded-2xl font-black transition-all"
+                >
+                  Capture Image
+                </button>
 
-            </label>
+              </div>
+            )}
 
             <button
-              onClick={handleUpload}
+              onClick={handlePrediction}
               disabled={loading}
-              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-4 rounded-2xl text-xl transition-all hover:scale-[1.02] active:scale-95 shadow-2xl"
+              className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-5 rounded-2xl text-xl transition-all hover:scale-[1.02] active:scale-95"
             >
               {loading
                 ? 'Analyzing Banana...'
@@ -191,49 +279,45 @@ export default function Home()
 
             <div>
 
-              <h2 className="text-3xl font-bold mb-10">
+              <h2 className="text-4xl font-black mb-10">
                 Prediction Result
               </h2>
 
               {prediction ? (
                 <div>
 
-                  <div className="text-8xl mb-6">
+                  <div className="text-8xl mb-8">
                     {getPredictionEmoji()}
                   </div>
 
                   <h3
-                    className={`text-5xl font-black mb-6 ${getPredictionColor()}`}
+                    className={`text-6xl font-black mb-8 ${getPredictionColor()}`}
                   >
                     {prediction}
                   </h3>
 
-                  <div className="space-y-6">
+                  <div className="mb-6">
 
-                    <div>
+                    <div className="flex justify-between mb-3">
 
-                      <div className="flex justify-between mb-2">
+                      <span className="text-zinc-400 text-lg">
+                        Confidence
+                      </span>
 
-                        <span className="text-zinc-400">
-                          Confidence
-                        </span>
+                      <span className="font-bold text-xl">
+                        {confidence}%
+                      </span>
 
-                        <span className="font-bold">
-                          {confidence}%
-                        </span>
+                    </div>
 
-                      </div>
+                    <div className="w-full bg-zinc-800 rounded-full h-5 overflow-hidden">
 
-                      <div className="w-full bg-zinc-800 rounded-full h-4 overflow-hidden">
-
-                        <div
-                          className="bg-gradient-to-r from-yellow-400 to-green-400 h-4 rounded-full"
-                          style={{
-                            width: `${confidence}%`,
-                          }}
-                        />
-
-                      </div>
+                      <div
+                        className="bg-gradient-to-r from-yellow-400 via-green-400 to-cyan-400 h-5 rounded-full transition-all duration-700"
+                        style={{
+                          width: `${confidence}%`,
+                        }}
+                      />
 
                     </div>
 
@@ -241,14 +325,14 @@ export default function Home()
 
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="flex flex-col items-center justify-center h-full text-center py-20">
 
-                  <div className="text-8xl mb-6 opacity-40">
+                  <div className="text-8xl mb-8 opacity-40">
                     🤖
                   </div>
 
                   <p className="text-2xl text-zinc-400">
-                    Upload an image to begin prediction
+                    Upload or capture banana image
                   </p>
 
                 </div>
@@ -256,10 +340,10 @@ export default function Home()
 
             </div>
 
-            <div className="mt-10 grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-4 mt-10">
 
               <div className="bg-black/40 rounded-2xl p-5 text-center border border-zinc-800">
-                <div className="text-3xl mb-2">
+                <div className="text-4xl mb-3">
                   🟢
                 </div>
 
@@ -269,7 +353,7 @@ export default function Home()
               </div>
 
               <div className="bg-black/40 rounded-2xl p-5 text-center border border-zinc-800">
-                <div className="text-3xl mb-2">
+                <div className="text-4xl mb-3">
                   🍌
                 </div>
 
@@ -279,7 +363,7 @@ export default function Home()
               </div>
 
               <div className="bg-black/40 rounded-2xl p-5 text-center border border-zinc-800">
-                <div className="text-3xl mb-2">
+                <div className="text-4xl mb-3">
                   🟤
                 </div>
 
