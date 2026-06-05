@@ -33,6 +33,18 @@ interface PredictionResult
 
   confidence: number
 
+  quality_score?: number
+
+  shelf_life?: string
+
+  risk_level?: string
+
+  storage?: string
+
+  recommendation?: string
+
+  summary?: string
+
   processing: boolean
 }
 
@@ -73,11 +85,11 @@ const loadingStages = [
 
   'Initializing AI engine...',
 
-  'Scanning banana surface...',
+  'Scanning banana texture...',
 
-  'Analyzing ripeness...',
+  'Running CNN inference...',
 
-  'Generating prediction...',
+  'Generating AI insights...',
 ]
 
 export function UploadDetectionSection()
@@ -217,6 +229,24 @@ export function UploadDetectionSection()
                       Number(
                         data.confidence
                       ),
+
+                    quality_score:
+                      data.quality_score,
+
+                    shelf_life:
+                      data.shelf_life,
+
+                    risk_level:
+                      data.risk_level,
+
+                    storage:
+                      data.storage,
+
+                    recommendation:
+                      data.recommendation,
+
+                    summary:
+                      data.summary,
                   }
                 : p
             )
@@ -260,38 +290,12 @@ export function UploadDetectionSection()
     },
   })
 
-  const stats = {
-
-    total: predictions.length,
-
-    ripe: predictions.filter(
-      (p) => p.ripeness === 'ripe'
-    ).length,
-
-    unripe: predictions.filter(
-      (p) =>
-        p.ripeness === 'unripe'
-    ).length,
-
-    overripe:
-      predictions.filter(
-        (p) =>
-          p.ripeness ===
-          'overripe'
-      ).length,
-  }
-
   return (
 
     <section
       id="detection"
       className="relative py-24 px-6 overflow-hidden"
     >
-
-      {/* Background */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/5 rounded-full blur-3xl opacity-30" />
-
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-400/5 rounded-full blur-3xl opacity-20" />
 
       <div className="relative z-10 max-w-7xl mx-auto">
 
@@ -331,7 +335,7 @@ export function UploadDetectionSection()
 
         </div>
 
-        {/* Upload Section */}
+        {/* Upload */}
         <div className="mb-14">
 
           <GlassCard>
@@ -348,18 +352,6 @@ export function UploadDetectionSection()
               <input
                 {...getInputProps()}
               />
-
-              {/* Processing Overlay */}
-              {isProcessing && (
-
-                <div className="absolute inset-0 overflow-hidden">
-
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent animate-pulse" />
-
-                  <div className="absolute inset-0 bg-yellow-400/5 animate-pulse" />
-
-                </div>
-              )}
 
               <div className="relative z-10 flex flex-col items-center justify-center space-y-5">
 
@@ -409,20 +401,6 @@ export function UploadDetectionSection()
 
                 </div>
 
-                {/* Progress */}
-                {isProcessing && (
-
-                  <div className="w-full max-w-md mt-6">
-
-                    <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
-
-                      <div className="h-full bg-gradient-to-r from-yellow-400 to-green-400 animate-pulse w-full" />
-
-                    </div>
-
-                  </div>
-                )}
-
               </div>
 
             </div>
@@ -430,78 +408,6 @@ export function UploadDetectionSection()
           </GlassCard>
 
         </div>
-
-        {/* Stats */}
-        {predictions.length > 0 && (
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-14">
-
-            <GlassCard className="p-5 text-center">
-
-              <div className="text-3xl font-bold text-yellow-400 mb-2">
-
-                {stats.total}
-
-              </div>
-
-              <div className="text-sm text-zinc-500">
-
-                Total Scans
-
-              </div>
-
-            </GlassCard>
-
-            <GlassCard className="p-5 text-center">
-
-              <div className="text-3xl font-bold text-green-400 mb-2">
-
-                {stats.ripe}
-
-              </div>
-
-              <div className="text-sm text-zinc-500">
-
-                Ripe
-
-              </div>
-
-            </GlassCard>
-
-            <GlassCard className="p-5 text-center">
-
-              <div className="text-3xl font-bold text-blue-400 mb-2">
-
-                {stats.unripe}
-
-              </div>
-
-              <div className="text-sm text-zinc-500">
-
-                Unripe
-
-              </div>
-
-            </GlassCard>
-
-            <GlassCard className="p-5 text-center">
-
-              <div className="text-3xl font-bold text-orange-400 mb-2">
-
-                {stats.overripe}
-
-              </div>
-
-              <div className="text-sm text-zinc-500">
-
-                Overripe
-
-              </div>
-
-            </GlassCard>
-
-          </div>
-        )}
 
         {/* Results */}
         {predictions.length > 0 && (
@@ -528,7 +434,7 @@ export function UploadDetectionSection()
 
                     <GlassCard
                       key={pred.id}
-                      className="overflow-hidden hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_0_35px_rgba(250,204,21,0.12)]"
+                      className="overflow-hidden hover:-translate-y-2 transition-all duration-500"
                     >
 
                       <div className="relative">
@@ -544,24 +450,6 @@ export function UploadDetectionSection()
                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                           />
 
-                          {pred.processing && (
-
-                            <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
-
-                              <Loader
-                                size={40}
-                                className="text-yellow-400 animate-spin mb-4"
-                              />
-
-                              <p className="text-white font-medium">
-
-                                AI Scanning...
-
-                              </p>
-
-                            </div>
-                          )}
-
                         </div>
 
                         {/* Content */}
@@ -573,67 +461,164 @@ export function UploadDetectionSection()
 
                           </p>
 
-                          {!pred.processing && (
+                          <div
+                            className={`px-4 py-3 rounded-2xl border ${colors.bg} ${colors.border} flex items-center justify-between`}
+                          >
 
-                            <>
+                            <span
+                              className={`font-semibold ${colors.text}`}
+                            >
+
+                              {
+                                colors.label
+                              }
+
+                            </span>
+
+                            <CheckCircle
+                              size={18}
+                              className={
+                                colors.text
+                              }
+                            />
+
+                          </div>
+
+                          {/* Confidence */}
+                          <div className="space-y-2">
+
+                            <div className="flex items-center justify-between text-sm">
+
+                              <span className="text-zinc-500">
+
+                                Confidence
+
+                              </span>
+
+                              <span className="text-yellow-400 font-semibold">
+
+                                {Math.round(
+                                  pred.confidence
+                                )}
+                                %
+
+                              </span>
+
+                            </div>
+
+                            <div className="w-full h-2 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+
                               <div
-                                className={`px-4 py-3 rounded-2xl border ${colors.bg} ${colors.border} flex items-center justify-between`}
-                              >
+                                className="h-full bg-gradient-to-r from-yellow-400 to-green-400 transition-all duration-700"
+                                style={{
+                                  width: `${pred.confidence}%`,
+                                }}
+                              />
 
-                                <span
-                                  className={`font-semibold ${colors.text}`}
-                                >
+                            </div>
 
-                                  {
-                                    colors.label
-                                  }
+                          </div>
 
-                                </span>
+                          {/* AI Insights */}
+                          <div className="space-y-4 pt-4 border-t border-zinc-800">
 
-                                <CheckCircle
-                                  size={18}
-                                  className={
-                                    colors.text
-                                  }
-                                />
+                            <div className="flex items-center justify-between">
 
-                              </div>
+                              <span className="text-zinc-500 text-sm">
 
-                              <div className="space-y-2">
+                                Quality Score
 
-                                <div className="flex items-center justify-between text-sm">
+                              </span>
 
-                                  <span className="text-zinc-500">
+                              <span className="text-green-400 font-semibold">
 
-                                    Confidence
+                                {pred.quality_score}/100
 
-                                  </span>
+                              </span>
 
-                                  <span className="text-yellow-400 font-semibold">
+                            </div>
 
-                                    {Math.round(
-                                      pred.confidence
-                                    )}
-                                    %
+                            <div className="flex items-center justify-between">
 
-                                  </span>
+                              <span className="text-zinc-500 text-sm">
 
-                                </div>
+                                Shelf Life
 
-                                <div className="w-full h-2 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+                              </span>
 
-                                  <div
-                                    className="h-full bg-gradient-to-r from-yellow-400 to-green-400 transition-all duration-700"
-                                    style={{
-                                      width: `${pred.confidence}%`,
-                                    }}
-                                  />
+                              <span className="text-yellow-400 font-semibold">
 
-                                </div>
+                                {pred.shelf_life}
 
-                              </div>
-                            </>
-                          )}
+                              </span>
+
+                            </div>
+
+                            <div className="flex items-center justify-between">
+
+                              <span className="text-zinc-500 text-sm">
+
+                                Risk Level
+
+                              </span>
+
+                              <span className={`font-semibold ${
+                                pred.risk_level === 'Low'
+                                  ? 'text-green-400'
+                                  : pred.risk_level === 'Medium'
+                                  ? 'text-yellow-400'
+                                  : 'text-red-400'
+                              }`}>
+
+                                {pred.risk_level}
+
+                              </span>
+
+                            </div>
+
+                            <div>
+
+                              <p className="text-zinc-500 text-sm mb-2">
+
+                                Storage Advice
+
+                              </p>
+
+                              <p className="text-zinc-300 text-sm leading-relaxed">
+
+                                {pred.storage}
+
+                              </p>
+
+                            </div>
+
+                            <div>
+
+                              <p className="text-zinc-500 text-sm mb-2">
+
+                                AI Recommendation
+
+                              </p>
+
+                              <p className="text-zinc-300 text-sm leading-relaxed">
+
+                                {pred.recommendation}
+
+                              </p>
+
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800">
+
+                              <p className="text-sm text-zinc-300 italic leading-relaxed">
+
+                                {pred.summary}
+
+                              </p>
+
+                            </div>
+
+                          </div>
 
                         </div>
 
@@ -648,31 +633,6 @@ export function UploadDetectionSection()
 
           </div>
         )}
-
-        {/* Empty State */}
-        {predictions.length === 0 &&
-          !isProcessing && (
-
-            <div className="text-center py-16">
-
-              <div className="flex flex-col items-center justify-center gap-4">
-
-                <Upload
-                  size={44}
-                  className="text-zinc-600"
-                />
-
-                <p className="text-zinc-500 text-lg">
-
-                  Upload banana images
-                  to begin AI analysis
-
-                </p>
-
-              </div>
-
-            </div>
-          )}
 
       </div>
 
