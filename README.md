@@ -30,7 +30,7 @@ Advanced AI-powered banana ripeness detection platform built using TensorFlow, M
 
 https://banana-sense-ai.vercel.app/#dashboard
 
-### Repository
+### GitHub Repository
 
 https://github.com/Ankitnotnani/banana-sense-ai
 
@@ -40,7 +40,7 @@ https://github.com/Ankitnotnani/banana-sense-ai
 
 BananaSense AI is a modern agricultural computer vision platform that uses deep learning and AI analytics to classify banana ripeness in real time.
 
-The system combines:
+The platform combines:
 
 * TensorFlow-based inference
 * MobileNetV2 transfer learning
@@ -50,7 +50,7 @@ The system combines:
 * CSV analytics exports
 * Interactive data visualization
 
-The platform predicts:
+The system predicts:
 
 * banana ripeness
 * confidence score
@@ -136,7 +136,7 @@ The platform predicts:
 
 # System Architecture
 
-```text
+```text id="f5f0s9"
 User Upload
      ↓
 Next.js Frontend
@@ -156,31 +156,31 @@ Analytics Dashboard
 
 ## Dashboard
 
-![Dashboard](frontend/public/screenshots/dashboard.png)
+<img src="./frontend/public/screenshots/dashboard.png" width="100%" />
 
 ---
 
 ## Prediction Results
 
-![Prediction](frontend/public/screenshots/prediction.png)
+<img src="./frontend/public/screenshots/prediction.png" width="100%" />
 
 ---
 
 ## Analytics Dashboard
 
-![Analytics](frontend/public/screenshots/analytics.png)
+<img src="./frontend/public/screenshots/analytics.png" width="100%" />
 
 ---
 
 ## Detection History
 
-![History](frontend/public/screenshots/history.png)
+<img src="./frontend/public/screenshots/history.png" width="100%" />
 
 ---
 
 # Project Structure
 
-```text
+```text id="2bqjkt"
 banana-sense-ai/
 │
 ├── frontend/
