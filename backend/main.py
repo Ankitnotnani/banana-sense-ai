@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 import tensorflow as tf
 import numpy as np
@@ -8,6 +9,7 @@ from PIL import Image
 
 import io
 import uvicorn
+import csv
 
 from datetime import datetime
 
@@ -34,7 +36,7 @@ model = tf.keras.models.load_model(
 )
 
 # =========================
-# CLASSES
+# CLASS LABELS
 # =========================
 
 classes = [
@@ -57,90 +59,11 @@ prediction_history = []
 def home():
 
     return {
-        "message":
-        "BananaSense AI Backend Running Successfully"
+        "message": "BananaSense AI Backend Running Successfully"
     }
 
 # =========================
-# AI INSIGHTS
-# =========================
-
-def generate_ai_insights(
-    prediction,
-    confidence
-):
-
-    if prediction == "Unripe":
-
-        return {
-
-            "quality_score":
-            82,
-
-            "shelf_life":
-            "4 - 6 days",
-
-            "risk_level":
-            "Low",
-
-            "storage":
-            "Store at room temperature away from direct sunlight.",
-
-            "recommendation":
-            "Suitable for transportation and warehouse storage.",
-
-            "summary":
-            "Banana is currently unripe and ideal for long-distance logistics."
-        }
-
-    elif prediction == "Ripe":
-
-        return {
-
-            "quality_score":
-            94,
-
-            "shelf_life":
-            "1 - 2 days",
-
-            "risk_level":
-            "Medium",
-
-            "storage":
-            "Best stored at cool room temperature.",
-
-            "recommendation":
-            "Ideal for immediate retail sale or consumption.",
-
-            "summary":
-            "Banana has reached optimal ripeness for consumption."
-        }
-
-    else:
-
-        return {
-
-            "quality_score":
-            68,
-
-            "shelf_life":
-            "Less than 1 day",
-
-            "risk_level":
-            "High",
-
-            "storage":
-            "Consume quickly or refrigerate immediately.",
-
-            "recommendation":
-            "Best suited for smoothies, baking, or processing.",
-
-            "summary":
-            "Banana is overripe and nearing spoilage."
-        }
-
-# =========================
-# PREDICT ROUTE
+# PREDICTION ROUTE
 # =========================
 
 @app.post("/predict")
@@ -156,9 +79,7 @@ async def predict(
             io.BytesIO(contents)
         ).convert("RGB")
 
-        image = image.resize(
-            (224, 224)
-        )
+        image = image.resize((224, 224))
 
         img_array = np.array(image)
 
@@ -181,51 +102,86 @@ async def predict(
             np.max(prediction)
         )
 
-        insights = generate_ai_insights(
-            predicted_class,
-            confidence
-        )
+        # =========================
+        # EXTRA AI INSIGHTS
+        # =========================
+
+        shelf_life = ""
+        storage_advice = ""
+        quality_score = 0
+        risk_level = ""
+
+        if predicted_class == "Unripe":
+
+            shelf_life = "4 - 6 days"
+
+            storage_advice = (
+                "Store at room temperature."
+            )
+
+            quality_score = 82
+
+            risk_level = "Low"
+
+        elif predicted_class == "Ripe":
+
+            shelf_life = "1 - 2 days"
+
+            storage_advice = (
+                "Consume soon or refrigerate."
+            )
+
+            quality_score = 95
+
+            risk_level = "Medium"
+
+        else:
+
+            shelf_life = "Consume immediately"
+
+            storage_advice = (
+                "High spoilage risk."
+            )
+
+            quality_score = 45
+
+            risk_level = "High"
+
+        # =========================
+        # FINAL RESULT
+        # =========================
 
         result = {
 
-            "filename":
-            file.filename,
+            "filename": file.filename,
 
-            "prediction":
-            predicted_class,
+            "prediction": predicted_class,
 
-            "confidence":
-            round(confidence * 100, 2),
+            "confidence": round(
+                confidence * 100,
+                2
+            ),
 
-            "timestamp":
-            datetime.now().strftime(
+            "timestamp": datetime.now().strftime(
                 "%d-%m-%Y %H:%M:%S"
             ),
 
-            "quality_score":
-            insights["quality_score"],
+            "shelf_life": shelf_life,
 
-            "shelf_life":
-            insights["shelf_life"],
+            "storage_advice": storage_advice,
 
-            "risk_level":
-            insights["risk_level"],
+            "quality_score": quality_score,
 
-            "storage":
-            insights["storage"],
-
-            "recommendation":
-            insights["recommendation"],
-
-            "summary":
-            insights["summary"]
+            "risk_level": risk_level
         }
 
+        # Save history
         prediction_history.insert(
             0,
             result
         )
 
+        # Keep only latest 20
         if len(prediction_history) > 20:
 
             prediction_history.pop()
@@ -259,58 +215,130 @@ def analytics():
     )
 
     ripe_count = len([
+
         p for p in prediction_history
+
         if p["prediction"] == "Ripe"
     ])
 
     unripe_count = len([
+
         p for p in prediction_history
+
         if p["prediction"] == "Unripe"
     ])
 
     overripe_count = len([
+
         p for p in prediction_history
+
         if p["prediction"] == "Overripe"
     ])
 
-    avg_confidence = 0
+    average_confidence = 0
 
     if total_predictions > 0:
 
-        avg_confidence = round(
-            sum([
+        average_confidence = round(
+
+            sum(
                 p["confidence"]
                 for p in prediction_history
-            ]) / total_predictions,
+            ) / total_predictions,
+
             2
         )
 
     return {
 
-        "total_predictions":
-        total_predictions,
+        "total_scans": total_predictions,
 
-        "ripe":
-        ripe_count,
+        "ripe": ripe_count,
 
-        "unripe":
-        unripe_count,
+        "unripe": unripe_count,
 
-        "overripe":
-        overripe_count,
+        "overripe": overripe_count,
 
-        "average_confidence":
-        avg_confidence
+        "average_confidence": average_confidence
     }
 
 # =========================
-# SERVER
+# EXPORT CSV ROUTE
+# =========================
+
+@app.get("/export-csv")
+def export_csv():
+
+    filename = "prediction_history.csv"
+
+    with open(
+        filename,
+        mode="w",
+        newline=""
+    ) as file:
+
+        writer = csv.writer(file)
+
+        writer.writerow([
+
+            "Filename",
+
+            "Prediction",
+
+            "Confidence",
+
+            "Timestamp",
+
+            "Shelf Life",
+
+            "Storage Advice",
+
+            "Quality Score",
+
+            "Risk Level"
+        ])
+
+        for item in prediction_history:
+
+            writer.writerow([
+
+                item["filename"],
+
+                item["prediction"],
+
+                item["confidence"],
+
+                item["timestamp"],
+
+                item["shelf_life"],
+
+                item["storage_advice"],
+
+                item["quality_score"],
+
+                item["risk_level"]
+            ])
+
+    return FileResponse(
+
+        path=filename,
+
+        media_type="text/csv",
+
+        filename=filename
+    )
+
+# =========================
+# RUN SERVER
 # =========================
 
 if __name__ == "__main__":
 
     uvicorn.run(
+
         app,
+
         host="0.0.0.0",
+
         port=8000
     )
